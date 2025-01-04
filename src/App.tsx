@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import Sales from "./pages/Sales";
+import Inventory from "./pages/Inventory";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Sales />} />
                 <Route path="/sales" element={<Sales />} />
+                <Route path="/inventory" element={<Inventory />} />
               </Routes>
             </main>
           </div>
