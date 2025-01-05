@@ -9,7 +9,111 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      expenses: {
+        Row: {
+          amount: number
+          category: string | null
+          created_at: string | null
+          date: string
+          description: string
+          id: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          category?: string | null
+          created_at?: string | null
+          date?: string
+          description: string
+          id?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          created_at?: string | null
+          date?: string
+          description?: string
+          id?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      inventory: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          id: string
+          price: number
+          product_name: string
+          quantity: number
+          sku: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          price: number
+          product_name: string
+          quantity?: number
+          sku?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          price?: number
+          product_name?: string
+          quantity?: number
+          sku?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      sales: {
+        Row: {
+          created_at: string | null
+          date: string
+          id: string
+          price: number
+          product_name: string
+          quantity: number
+          total: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          date?: string
+          id?: string
+          price: number
+          product_name: string
+          quantity: number
+          total?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          id?: string
+          price?: number
+          product_name?: string
+          quantity?: number
+          total?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
