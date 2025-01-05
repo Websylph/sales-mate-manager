@@ -1,16 +1,9 @@
 import { BarChart3, TrendingUp, Percent } from "lucide-react";
 import { MetricCard } from "@/components/MetricCard";
 import { Card } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -22,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useNavigate } from "react-router-dom";
 
 export default function Sales() {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -30,6 +24,34 @@ export default function Sales() {
   const [price, setPrice] = useState("0");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/login');
+        toast({
+          title: "Authentication required",
+          description: "Please log in to access this page.",
+          variant: "destructive",
+        });
+      }
+    };
+    checkAuth();
+  }, [navigate, toast]);
+
+  // Subscribe to auth changes
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        navigate('/login');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   // Fetch sales data
   const { data: sales, isLoading } = useQuery({
@@ -55,9 +77,18 @@ export default function Sales() {
   // Add new sale mutation
   const addSaleMutation = useMutation({
     mutationFn: async (newSale: any) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
+
+      const saleWithUserId = {
+        ...newSale,
+        user_id: user.id,
+        total: parseFloat(price) * parseInt(quantity)
+      };
+
       const { data, error } = await supabase
         .from('sales')
-        .insert([newSale]);
+        .insert([saleWithUserId]);
       
       if (error) throw error;
       return data;
