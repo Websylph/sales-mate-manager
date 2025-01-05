@@ -42,7 +42,7 @@ export const NewSaleForm = () => {
       const selectedProduct = inventory.find(item => item.product_name === productName);
       if (selectedProduct) {
         setPrice(selectedProduct.price.toString());
-        setCostPrice(selectedProduct.price.toString()); // Store the cost price
+        setCostPrice(selectedProduct.price.toString());
       }
     }
   }, [productName, inventory]);
@@ -59,11 +59,14 @@ export const NewSaleForm = () => {
         throw new Error(`Only ${selectedProduct.quantity} units available in stock`);
       }
 
+      // Remove total from the insert operation as it's a generated column
       const saleWithUserId = {
-        ...newSale,
+        date: newSale.date,
+        product_name: newSale.product_name,
+        quantity: newSale.quantity,
+        price: newSale.price,
         user_id: user.id,
-        total: newSale.price * newSale.quantity,
-        cost_price: selectedProduct.price, // Add cost price from inventory
+        cost_price: selectedProduct.price,
       };
 
       const { data, error } = await supabase
