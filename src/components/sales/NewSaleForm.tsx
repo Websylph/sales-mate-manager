@@ -18,6 +18,7 @@ export const NewSaleForm = () => {
   const [productName, setProductName] = useState("");
   const [quantity, setQuantity] = useState("1");
   const [price, setPrice] = useState("0");
+  const [costPrice, setCostPrice] = useState("0");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -41,6 +42,7 @@ export const NewSaleForm = () => {
       const selectedProduct = inventory.find(item => item.product_name === productName);
       if (selectedProduct) {
         setPrice(selectedProduct.price.toString());
+        setCostPrice(selectedProduct.price.toString()); // Store the cost price
       }
     }
   }, [productName, inventory]);
@@ -61,6 +63,7 @@ export const NewSaleForm = () => {
         ...newSale,
         user_id: user.id,
         total: newSale.price * newSale.quantity,
+        cost_price: selectedProduct.price, // Add cost price from inventory
       };
 
       const { data, error } = await supabase
@@ -81,6 +84,7 @@ export const NewSaleForm = () => {
       setProductName("");
       setQuantity("1");
       setPrice("0");
+      setCostPrice("0");
     },
     onError: (error: Error) => {
       toast({
@@ -101,24 +105,31 @@ export const NewSaleForm = () => {
     });
   };
 
+  const calculateProfit = () => {
+    const totalSale = parseFloat(price) * parseInt(quantity || "0");
+    const totalCost = parseFloat(costPrice) * parseInt(quantity || "0");
+    return (totalSale - totalCost).toFixed(2);
+  };
+
   return (
     <Card className="p-4 md:p-6">
       <h2 className="text-lg font-semibold mb-4">New Sale</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-2">
             <label className="text-sm font-medium">Date</label>
             <Input 
               type="date" 
               value={date}
               onChange={(e) => setDate(e.target.value)}
+              className="w-full"
             />
           </div>
           
           <div className="space-y-2">
             <label className="text-sm font-medium">Product</label>
             <Select value={productName} onValueChange={setProductName}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select product" />
               </SelectTrigger>
               <SelectContent>
@@ -138,20 +149,28 @@ export const NewSaleForm = () => {
               min="1"
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
+              className="w-full"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Price (₹)</label>
+            <label className="text-sm font-medium">Selling Price (₹)</label>
             <Input 
               type="number"
-              min="0"
+              min={costPrice}
               step="0.01"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
+              className="w-full"
             />
           </div>
         </div>
+
+        {productName && (
+          <div className="text-sm text-muted-foreground">
+            Estimated Profit: ₹{calculateProfit()}
+          </div>
+        )}
         
         <div className="flex justify-end">
           <Button type="submit" disabled={addSaleMutation.isPending}>
