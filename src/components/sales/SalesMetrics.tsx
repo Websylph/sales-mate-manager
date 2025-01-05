@@ -21,8 +21,8 @@ export const SalesMetrics = ({ totalSales, averagePrice, margin }: SalesMetricsP
         icon={<TrendingUp className="h-4 w-4 text-green-500" />}
       />
       <MetricCard
-        title="Margin"
-        value={`${margin}%`}
+        title="Profit Margin"
+        value={`${margin.toFixed(1)}%`}
         icon={<Percent className="h-4 w-4 text-purple-500" />}
       />
     </div>

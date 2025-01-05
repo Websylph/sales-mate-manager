@@ -80,33 +80,39 @@ export type Database = {
       }
       sales: {
         Row: {
+          cost_price: number | null
           created_at: string | null
           date: string
           id: string
           price: number
           product_name: string
+          profit: number | null
           quantity: number
           total: number | null
           updated_at: string | null
           user_id: string | null
         }
         Insert: {
+          cost_price?: number | null
           created_at?: string | null
           date?: string
           id?: string
           price: number
           product_name: string
+          profit?: number | null
           quantity: number
           total?: number | null
           updated_at?: string | null
           user_id?: string | null
         }
         Update: {
+          cost_price?: number | null
           created_at?: string | null
           date?: string
           id?: string
           price?: number
           product_name?: string
+          profit?: number | null
           quantity?: number
           total?: number | null
           updated_at?: string | null

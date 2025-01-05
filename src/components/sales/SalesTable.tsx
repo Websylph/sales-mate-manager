@@ -15,6 +15,7 @@ interface Sale {
   quantity: number;
   price: number;
   total: number;
+  profit: number;
 }
 
 interface SalesTableProps {
@@ -35,16 +36,17 @@ export const SalesTable = ({ sales, isLoading }: SalesTableProps) => {
               <TableHead>Quantity</TableHead>
               <TableHead>Price</TableHead>
               <TableHead>Total</TableHead>
+              <TableHead>Profit</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">Loading...</TableCell>
+                <TableCell colSpan={6} className="text-center">Loading...</TableCell>
               </TableRow>
             ) : sales?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">No sales recorded yet</TableCell>
+                <TableCell colSpan={6} className="text-center">No sales recorded yet</TableCell>
               </TableRow>
             ) : (
               sales?.map((sale) => (
@@ -54,6 +56,7 @@ export const SalesTable = ({ sales, isLoading }: SalesTableProps) => {
                   <TableCell>{sale.quantity}</TableCell>
                   <TableCell>₹{sale.price.toFixed(2)}</TableCell>
                   <TableCell>₹{(sale.total || 0).toFixed(2)}</TableCell>
+                  <TableCell className="text-green-600">₹{(sale.profit || 0).toFixed(2)}</TableCell>
                 </TableRow>
               ))
             )}

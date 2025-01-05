@@ -1,10 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const NewSaleForm = () => {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -14,14 +21,46 @@ export const NewSaleForm = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Fetch inventory data
+  const { data: inventory } = useQuery({
+    queryKey: ['inventory'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('inventory')
+        .select('*')
+        .gt('quantity', 0); // Only get products with stock
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  // Update price when product is selected
+  useEffect(() => {
+    if (productName && inventory) {
+      const selectedProduct = inventory.find(item => item.product_name === productName);
+      if (selectedProduct) {
+        setPrice(selectedProduct.price.toString());
+      }
+    }
+  }, [productName, inventory]);
+
   const addSaleMutation = useMutation({
     mutationFn: async (newSale: any) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("User not authenticated");
 
+      // Check inventory quantity
+      const selectedProduct = inventory?.find(item => item.product_name === newSale.product_name);
+      if (!selectedProduct) throw new Error("Product not found in inventory");
+      if (selectedProduct.quantity < newSale.quantity) {
+        throw new Error(`Only ${selectedProduct.quantity} units available in stock`);
+      }
+
       const saleWithUserId = {
         ...newSale,
         user_id: user.id,
+        total: newSale.price * newSale.quantity,
       };
 
       const { data, error } = await supabase
@@ -33,6 +72,7 @@ export const NewSaleForm = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sales'] });
+      queryClient.invalidateQueries({ queryKey: ['inventory'] });
       toast({
         title: "Sale added successfully",
         description: "The new sale has been recorded.",
@@ -76,12 +116,19 @@ export const NewSaleForm = () => {
           </div>
           
           <div className="space-y-2">
-            <label className="text-sm font-medium">Product Name</label>
-            <Input
-              value={productName}
-              onChange={(e) => setProductName(e.target.value)}
-              placeholder="Enter product name"
-            />
+            <label className="text-sm font-medium">Product</label>
+            <Select value={productName} onValueChange={setProductName}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select product" />
+              </SelectTrigger>
+              <SelectContent>
+                {inventory?.map((item) => (
+                  <SelectItem key={item.id} value={item.product_name}>
+                    {item.product_name} ({item.quantity} in stock)
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
