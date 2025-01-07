@@ -1,50 +1,104 @@
-// Calculate data based on period
+import { startOfDay, startOfWeek, startOfMonth, startOfYear, format } from "date-fns";
+
+// Helper function to get period start date
 const getPeriodStart = (date: Date, period: string) => {
-  const newDate = new Date(date);
   switch (period) {
     case 'daily':
-      return new Date(newDate.setHours(0, 0, 0, 0));
+      return startOfDay(date);
     case 'weekly':
-      newDate.setDate(newDate.getDate() - newDate.getDay());
-      return new Date(newDate.setHours(0, 0, 0, 0));
+      return startOfWeek(date);
     case 'monthly':
-      return new Date(newDate.getFullYear(), newDate.getMonth(), 1);
+      return startOfMonth(date);
     case 'yearly':
-      return new Date(newDate.getFullYear(), 0, 1);
+      return startOfYear(date);
     default:
-      return new Date(newDate.setHours(0, 0, 0, 0));
+      return startOfMonth(date);
   }
 };
 
-// Calculate monthly data
-export const calculateMonthlyData = (data: any[], type: string) => {
-  const monthlyData = new Array(6).fill(0).map((_, index) => {
-    const date = new Date();
-    date.setMonth(date.getMonth() - (5 - index));
-    return {
-      name: date.toLocaleString("default", { month: "short" }),
+// Helper function to format date based on period
+const formatPeriodDate = (date: Date, period: string) => {
+  switch (period) {
+    case 'daily':
+      return format(date, 'MMM dd');
+    case 'weekly':
+      return `Week ${format(date, 'w')}`;
+    case 'monthly':
+      return format(date, 'MMM yyyy');
+    case 'yearly':
+      return format(date, 'yyyy');
+    default:
+      return format(date, 'MMM yyyy');
+  }
+};
+
+export const calculateMonthlyData = (data: any[], type: string, period: string = 'monthly') => {
+  const periodData = new Map();
+  const today = new Date();
+  const sixPeriodsAgo = new Date();
+
+  // Set the range based on period
+  switch (period) {
+    case 'daily':
+      sixPeriodsAgo.setDate(today.getDate() - 5);
+      break;
+    case 'weekly':
+      sixPeriodsAgo.setDate(today.getDate() - (6 * 7));
+      break;
+    case 'monthly':
+      sixPeriodsAgo.setMonth(today.getMonth() - 5);
+      break;
+    case 'yearly':
+      sixPeriodsAgo.setFullYear(today.getFullYear() - 5);
+      break;
+  }
+
+  // Initialize periods
+  let currentDate = new Date(sixPeriodsAgo);
+  while (currentDate <= today) {
+    const periodKey = formatPeriodDate(currentDate, period);
+    periodData.set(periodKey, {
+      name: periodKey,
       value: 0,
       profit: 0,
-      sales: 0,
-    };
-  });
+      sales: 0
+    });
 
+    // Increment current date based on period
+    switch (period) {
+      case 'daily':
+        currentDate.setDate(currentDate.getDate() + 1);
+        break;
+      case 'weekly':
+        currentDate.setDate(currentDate.getDate() + 7);
+        break;
+      case 'monthly':
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        break;
+      case 'yearly':
+        currentDate.setFullYear(currentDate.getFullYear() + 1);
+        break;
+    }
+  }
+
+  // Aggregate data
   data?.forEach((item) => {
     const itemDate = new Date(item.date);
-    const monthIndex = monthlyData.findIndex(
-      (d) => d.name === itemDate.toLocaleString("default", { month: "short" })
-    );
-    if (monthIndex !== -1) {
+    const periodKey = formatPeriodDate(itemDate, period);
+
+    if (periodData.has(periodKey)) {
+      const periodItem = periodData.get(periodKey);
       if (type === 'sales') {
-        monthlyData[monthIndex].sales += item.total || 0;
-        monthlyData[monthIndex].profit += item.profit || 0;
+        periodItem.sales += item.total || 0;
+        periodItem.profit += item.profit || 0;
       } else if (type === 'expenses') {
-        monthlyData[monthIndex].value += item.amount;
+        periodItem.value += item.amount;
       }
+      periodData.set(periodKey, periodItem);
     }
   });
 
-  return monthlyData;
+  return Array.from(periodData.values());
 };
 
 export const calculateInventoryStats = (inventory: any[], sales: any[]) => {

@@ -39,8 +39,8 @@ export default function Analytics() {
     queryFn: fetchAnalyticsData,
   });
 
-  const expensesData = calculateMonthlyData(analyticsData?.expenses || [], "expenses");
-  const salesAndProfitData = calculateMonthlyData(analyticsData?.sales || [], "sales");
+  const expensesData = calculateMonthlyData(analyticsData?.expenses || [], "expenses", period);
+  const salesAndProfitData = calculateMonthlyData(analyticsData?.sales || [], "sales", period);
   const inventoryStats = calculateInventoryStats(analyticsData?.inventory || [], analyticsData?.sales || []);
 
   // Calculate metrics
