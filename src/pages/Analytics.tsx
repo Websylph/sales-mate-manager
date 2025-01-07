@@ -1,28 +1,13 @@
 import { useEffect, useState } from "react";
 import { BarChart, LineChart, PieChart } from "lucide-react";
 import { MetricCard } from "@/components/MetricCard";
-import { Card } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  BarChart as RechartsBarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-  Line,
-  LineChart as RechartsLineChart,
-} from "recharts";
-import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { calculateMonthlyData, calculateInventoryStats } from "@/utils/analytics";
+import { ExpensesChart } from "@/components/analytics/ExpensesChart";
+import { SalesChart } from "@/components/analytics/SalesChart";
+import { InventoryChart } from "@/components/analytics/InventoryChart";
+import { PerformanceChart } from "@/components/analytics/PerformanceChart";
 
 // Fetch analytics data from Supabase
 const fetchAnalyticsData = async () => {
@@ -45,55 +30,6 @@ const fetchAnalyticsData = async () => {
   return { sales, expenses, inventory };
 };
 
-// Calculate monthly data
-const calculateMonthlyData = (data: any[], type: string) => {
-  const monthlyData = new Array(6).fill(0).map((_, index) => {
-    const date = new Date();
-    date.setMonth(date.getMonth() - (5 - index));
-    return {
-      name: date.toLocaleString("default", { month: "short" }),
-      value: 0,
-      profit: 0,
-      sales: 0,
-    };
-  });
-
-  data?.forEach((item) => {
-    const itemDate = new Date(item.date);
-    const monthIndex = monthlyData.findIndex(
-      (d) => d.name === itemDate.toLocaleString("default", { month: "short" })
-    );
-    if (monthIndex !== -1) {
-      if (type === 'sales') {
-        monthlyData[monthIndex].sales += item.total || 0;
-        monthlyData[monthIndex].profit += item.profit || 0;
-      } else if (type === 'expenses') {
-        monthlyData[monthIndex].value += item.amount;
-      }
-    }
-  });
-
-  return monthlyData;
-};
-
-const calculateInventoryStats = (inventory: any[], sales: any[]) => {
-  const stats = inventory.map(item => {
-    const soldQuantity = sales
-      .filter(sale => sale.product_name === item.product_name)
-      .reduce((sum, sale) => sum + sale.quantity, 0);
-
-    return {
-      name: item.product_name,
-      inStock: item.quantity,
-      purchased: item.quantity + soldQuantity,
-      sold: soldQuantity,
-      performance: soldQuantity * item.price
-    };
-  });
-
-  return stats;
-};
-
 export default function Analytics() {
   const { data: analyticsData, isLoading } = useQuery({
     queryKey: ["analytics"],
@@ -106,8 +42,7 @@ export default function Analytics() {
 
   // Calculate metrics
   const totalRevenue = analyticsData?.sales?.reduce((sum, sale) => sum + (sale.total || 0), 0) || 0;
-  const totalExpenses = analyticsData?.expenses?.reduce((sum, expense) => sum + expense.amount, 0) || 0;
-  const totalProfit = totalRevenue - totalExpenses;
+  const totalProfit = analyticsData?.sales?.reduce((sum, sale) => sum + (sale.profit || 0), 0) || 0;
   const profitMargin = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0;
 
   return (
@@ -133,71 +68,10 @@ export default function Analytics() {
       </div>
 
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-        <Card className="p-4">
-          <h2 className="text-lg font-semibold mb-4">Monthly Expenses</h2>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer>
-              <RechartsBarChart data={expensesData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="value" fill="#ef4444" name="Expenses" />
-              </RechartsBarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <h2 className="text-lg font-semibold mb-4">Sales and Profit</h2>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer>
-              <RechartsBarChart data={salesAndProfitData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="sales" fill="#3b82f6" name="Sales" />
-                <Bar dataKey="profit" fill="#22c55e" name="Profit" />
-              </RechartsBarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <h2 className="text-lg font-semibold mb-4">Inventory Statistics</h2>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer>
-              <RechartsBarChart data={inventoryStats}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="inStock" fill="#3b82f6" name="In Stock" />
-                <Bar dataKey="purchased" fill="#8b5cf6" name="Purchased" />
-                <Bar dataKey="sold" fill="#22c55e" name="Sold" />
-              </RechartsBarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <h2 className="text-lg font-semibold mb-4">Product Performance</h2>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer>
-              <RechartsLineChart data={inventoryStats}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="performance" stroke="#3b82f6" name="Sales Performance" />
-              </RechartsLineChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
+        <ExpensesChart expensesData={expensesData} />
+        <SalesChart salesData={salesAndProfitData} />
+        <InventoryChart inventoryStats={inventoryStats} />
+        <PerformanceChart inventoryStats={inventoryStats} />
       </div>
     </div>
   );
