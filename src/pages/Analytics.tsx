@@ -49,23 +49,34 @@ export default function Analytics() {
   const profitMargin = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0;
 
   const handleDownloadReport = () => {
-    // Create CSV content
-    const csvContent = [
+    // Create financial data CSV content
+    const financialData = [
+      ["Financial Metrics"],
       ["Month", "Revenue", "Profit", "Expenses"],
       ...salesAndProfitData.map((data, index) => [
         data.name,
         data.sales.toFixed(2),
         data.profit.toFixed(2),
         expensesData[index]?.value.toFixed(2) || "0.00"
+      ]),
+      [], // Empty row for separation
+      ["Inventory Metrics"],
+      ["Product", "In Stock", "Total Purchased", "Total Sold", "Performance (Revenue)"],
+      ...inventoryStats.map(stat => [
+        stat.name,
+        stat.inStock.toString(),
+        stat.purchased.toString(),
+        stat.sold.toString(),
+        stat.performance.toFixed(2)
       ])
     ].map(row => row.join(",")).join("\n");
 
     // Create and trigger download
-    const blob = new Blob([csvContent], { type: "text/csv" });
+    const blob = new Blob([financialData], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `monthly_report_${new Date().toISOString().slice(0, 7)}.csv`;
+    a.download = `analytics_report_${new Date().toISOString().slice(0, 10)}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
