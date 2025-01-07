@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BarChart, LineChart, PieChart } from "lucide-react";
+import { BarChart, LineChart, PieChart, Download } from "lucide-react";
 import { MetricCard } from "@/components/MetricCard";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +8,8 @@ import { ExpensesChart } from "@/components/analytics/ExpensesChart";
 import { SalesChart } from "@/components/analytics/SalesChart";
 import { InventoryChart } from "@/components/analytics/InventoryChart";
 import { PerformanceChart } from "@/components/analytics/PerformanceChart";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
 // Fetch analytics data from Supabase
 const fetchAnalyticsData = async () => {
@@ -31,6 +33,7 @@ const fetchAnalyticsData = async () => {
 };
 
 export default function Analytics() {
+  const [period, setPeriod] = useState("monthly");
   const { data: analyticsData, isLoading } = useQuery({
     queryKey: ["analytics"],
     queryFn: fetchAnalyticsData,
@@ -45,9 +48,55 @@ export default function Analytics() {
   const totalProfit = analyticsData?.sales?.reduce((sum, sale) => sum + (sale.profit || 0), 0) || 0;
   const profitMargin = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0;
 
+  const handleDownloadReport = () => {
+    // Create CSV content
+    const csvContent = [
+      ["Month", "Revenue", "Profit", "Expenses"],
+      ...salesAndProfitData.map((data, index) => [
+        data.name,
+        data.sales.toFixed(2),
+        data.profit.toFixed(2),
+        expensesData[index]?.value.toFixed(2) || "0.00"
+      ])
+    ].map(row => row.join(",")).join("\n");
+
+    // Create and trigger download
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `monthly_report_${new Date().toISOString().slice(0, 7)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="p-4 md:p-6 space-y-6">
-      <h1 className="text-2xl font-bold mb-6">Analytics Dashboard</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h1 className="text-2xl font-bold">Analytics Dashboard</h1>
+        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+          <Select value={period} onValueChange={setPeriod}>
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectValue placeholder="Select period" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="daily">Daily</SelectItem>
+              <SelectItem value="weekly">Weekly</SelectItem>
+              <SelectItem value="monthly">Monthly</SelectItem>
+              <SelectItem value="yearly">Yearly</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button 
+            onClick={handleDownloadReport}
+            className="w-full sm:w-auto"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Download Report
+          </Button>
+        </div>
+      </div>
       
       <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
         <MetricCard

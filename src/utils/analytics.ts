@@ -1,3 +1,21 @@
+// Calculate data based on period
+const getPeriodStart = (date: Date, period: string) => {
+  const newDate = new Date(date);
+  switch (period) {
+    case 'daily':
+      return new Date(newDate.setHours(0, 0, 0, 0));
+    case 'weekly':
+      newDate.setDate(newDate.getDate() - newDate.getDay());
+      return new Date(newDate.setHours(0, 0, 0, 0));
+    case 'monthly':
+      return new Date(newDate.getFullYear(), newDate.getMonth(), 1);
+    case 'yearly':
+      return new Date(newDate.getFullYear(), 0, 1);
+    default:
+      return new Date(newDate.setHours(0, 0, 0, 0));
+  }
+};
+
 // Calculate monthly data
 export const calculateMonthlyData = (data: any[], type: string) => {
   const monthlyData = new Array(6).fill(0).map((_, index) => {
