@@ -41,7 +41,8 @@ const Home = () => {
     <div className="p-6 space-y-6">
       <h1 className="text-2xl font-bold">Dashboard</h1>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* First row: Total Sales and Inventory */}
+      <div className="grid gap-4 md:grid-cols-2">
         <Link to="/sales">
           <Card className="p-4 hover:bg-gray-50 transition-colors cursor-pointer">
             <div className="flex items-center space-x-4">
@@ -74,7 +75,10 @@ const Home = () => {
             </div>
           </Card>
         </Link>
+      </div>
 
+      {/* Second row: Total Expenses and Net Profit */}
+      <div className="grid gap-4 md:grid-cols-2">
         <Link to="/expenses">
           <Card className="p-4 hover:bg-gray-50 transition-colors cursor-pointer">
             <div className="flex items-center space-x-4">
