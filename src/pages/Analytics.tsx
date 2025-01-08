@@ -10,8 +10,8 @@ import { InventoryChart } from "@/components/analytics/InventoryChart";
 import { PerformanceChart } from "@/components/analytics/PerformanceChart";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-// Fetch analytics data from Supabase
 const fetchAnalyticsData = async () => {
   const { data: sales, error: salesError } = await supabase
     .from("sales")
@@ -99,10 +99,7 @@ export default function Analytics() {
               <SelectItem value="yearly">Yearly</SelectItem>
             </SelectContent>
           </Select>
-          <Button 
-            onClick={handleDownloadReport}
-            className="w-full sm:w-auto"
-          >
+          <Button onClick={handleDownloadReport} className="w-full sm:w-auto">
             <Download className="w-4 h-4 mr-2" />
             Download Report
           </Button>
@@ -127,12 +124,26 @@ export default function Analytics() {
         />
       </div>
 
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-        <ExpensesChart expensesData={expensesData} />
-        <SalesChart salesData={salesAndProfitData} />
-        <InventoryChart inventoryStats={inventoryStats} />
-        <PerformanceChart inventoryStats={inventoryStats} />
-      </div>
+      <Tabs defaultValue="expenses" className="w-full">
+        <TabsList className="w-full justify-start">
+          <TabsTrigger value="expenses">Expenses</TabsTrigger>
+          <TabsTrigger value="sales">Sales & Profit</TabsTrigger>
+          <TabsTrigger value="inventory">Inventory</TabsTrigger>
+          <TabsTrigger value="performance">Performance</TabsTrigger>
+        </TabsList>
+        <TabsContent value="expenses">
+          <ExpensesChart expensesData={expensesData} />
+        </TabsContent>
+        <TabsContent value="sales">
+          <SalesChart salesData={salesAndProfitData} />
+        </TabsContent>
+        <TabsContent value="inventory">
+          <InventoryChart inventoryStats={inventoryStats} />
+        </TabsContent>
+        <TabsContent value="performance">
+          <PerformanceChart inventoryStats={inventoryStats} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
