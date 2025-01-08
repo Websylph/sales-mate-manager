@@ -1,4 +1,4 @@
-import { Package, PlusCircle, Search } from "lucide-react";
+import { Package, PlusCircle, Search, Pencil } from "lucide-react";
 import { MetricCard } from "@/components/MetricCard";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { EditInventoryForm } from "@/components/inventory/EditInventoryForm";
 import {
   Table,
   TableBody,
@@ -23,6 +24,7 @@ export default function Inventory() {
   const [quantity, setQuantity] = useState("");
   const [price, setPrice] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [editingItem, setEditingItem] = useState<any>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -195,12 +197,13 @@ export default function Inventory() {
                 <TableHead>Price</TableHead>
                 <TableHead>Stock</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center">Loading...</TableCell>
+                  <TableCell colSpan={7} className="text-center">Loading...</TableCell>
                 </TableRow>
               ) : filteredInventory?.length ? (
                 filteredInventory.map((item) => (
@@ -219,17 +222,34 @@ export default function Inventory() {
                         <span className="text-green-500">In Stock</span>
                       )}
                     </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setEditingItem(item)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center">No products available</TableCell>
+                  <TableCell colSpan={7} className="text-center">No products available</TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
         </div>
       </Card>
+
+      {editingItem && (
+        <EditInventoryForm
+          item={editingItem}
+          isOpen={!!editingItem}
+          onClose={() => setEditingItem(null)}
+        />
+      )}
     </div>
   );
 }
