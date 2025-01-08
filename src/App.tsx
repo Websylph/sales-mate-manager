@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import Home from "./pages/Home";
 import Sales from "./pages/Sales";
 import Inventory from "./pages/Inventory";
 import Expenses from "./pages/Expenses";
@@ -61,7 +62,7 @@ const App = () => (
                     <main className="flex-1">
                       <SidebarTrigger className="p-4" />
                       <Routes>
-                        <Route path="/" element={<Sales />} />
+                        <Route path="/" element={<Home />} />
                         <Route path="/sales" element={<Sales />} />
                         <Route path="/inventory" element={<Inventory />} />
                         <Route path="/expenses" element={<Expenses />} />
