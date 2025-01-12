@@ -27,7 +27,11 @@ interface Sale {
   price: number;
   total: number;
   profit: number;
-  payment_method: 'cash' | 'upi';
+  payment_method: string;  // Changed from 'cash' | 'upi' to string to match Supabase type
+  cost_price?: number;
+  created_at?: string;
+  updated_at?: string;
+  user_id?: string;
 }
 
 interface SalesTableProps {
