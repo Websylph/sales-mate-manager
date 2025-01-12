@@ -27,7 +27,7 @@ interface Sale {
   price: number;
   total: number;
   profit: number;
-  payment_method: string;  // Changed from 'cash' | 'upi' to string to match Supabase type
+  payment_method: string;
   cost_price?: number;
   created_at?: string;
   updated_at?: string;
@@ -113,8 +113,10 @@ export const SalesTable = ({ sales, isLoading }: SalesTableProps) => {
                       onValueChange={(value: 'cash' | 'upi') => handlePaymentMethodChange(sale.id, value)}
                     >
                       <SelectTrigger className={cn(
-                        "w-[100px] text-white",
-                        sale.payment_method === 'cash' ? "bg-green-500 hover:bg-green-600" : "bg-blue-500 hover:bg-blue-600"
+                        "w-[100px]",
+                        sale.payment_method === 'cash' 
+                          ? "bg-green-500 hover:bg-green-600 text-white" 
+                          : "bg-blue-500 hover:bg-blue-600 text-white"
                       )}>
                         <SelectValue />
                       </SelectTrigger>
