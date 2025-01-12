@@ -102,19 +102,26 @@ export const calculateMonthlyData = (data: any[], type: string, period: string =
 };
 
 export const calculateInventoryStats = (inventory: any[], sales: any[]) => {
-  const stats = inventory.map(item => {
-    const soldQuantity = sales
-      .filter(sale => sale.product_name === item.product_name)
-      .reduce((sum, sale) => sum + sale.quantity, 0);
+  // Create a map to count sales for each product
+  const salesCount = sales.reduce((acc: { [key: string]: number }, sale) => {
+    acc[sale.product_name] = (acc[sale.product_name] || 0) + sale.quantity;
+    return acc;
+  }, {});
 
-    return {
-      name: item.product_name,
-      inStock: item.quantity,
-      purchased: item.quantity + soldQuantity,
-      sold: soldQuantity,
-      performance: soldQuantity * item.price
-    };
-  });
+  // Filter and sort products by sales count
+  const stats = inventory
+    .map(item => {
+      const soldQuantity = salesCount[item.product_name] || 0;
+      return {
+        name: item.product_name,
+        inStock: item.quantity,
+        purchased: item.quantity + soldQuantity,
+        sold: soldQuantity,
+        performance: soldQuantity * item.price
+      };
+    })
+    .filter(item => item.sold > 0) // Only include products with at least one sale
+    .sort((a, b) => b.sold - a.sold); // Sort by sold quantity in descending order
 
   return stats;
 };
