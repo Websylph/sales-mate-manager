@@ -8,6 +8,7 @@ import { ExpensesChart } from "@/components/analytics/ExpensesChart";
 import { SalesChart } from "@/components/analytics/SalesChart";
 import { InventoryChart } from "@/components/analytics/InventoryChart";
 import { PerformanceChart } from "@/components/analytics/PerformanceChart";
+import { ProductSalesTable } from "@/components/analytics/ProductSalesTable";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -123,6 +124,8 @@ export default function Analytics() {
           icon={<PieChart className="h-4 w-4 text-purple-500" />}
         />
       </div>
+
+      <ProductSalesTable />
 
       <Tabs defaultValue="expenses" className="w-full">
         <TabsList className="w-full justify-start">
