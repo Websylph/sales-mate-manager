@@ -19,6 +19,7 @@ export const NewSaleForm = () => {
   const [quantity, setQuantity] = useState("1");
   const [price, setPrice] = useState("0");
   const [costPrice, setCostPrice] = useState("0");
+  const [paymentMethod, setPaymentMethod] = useState("cash");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -67,6 +68,7 @@ export const NewSaleForm = () => {
         price: newSale.price,
         user_id: user.id,
         cost_price: selectedProduct.price,
+        payment_method: newSale.payment_method,
       };
 
       const { data, error } = await supabase
@@ -88,6 +90,7 @@ export const NewSaleForm = () => {
       setQuantity("1");
       setPrice("0");
       setCostPrice("0");
+      setPaymentMethod("cash");
     },
     onError: (error: Error) => {
       toast({
@@ -105,6 +108,7 @@ export const NewSaleForm = () => {
       product_name: productName,
       quantity: parseInt(quantity),
       price: parseFloat(price),
+      payment_method: paymentMethod,
     });
   };
 
@@ -166,6 +170,19 @@ export const NewSaleForm = () => {
               onChange={(e) => setPrice(e.target.value)}
               className="w-full"
             />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Payment Method</label>
+            <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select payment method" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="cash">Cash</SelectItem>
+                <SelectItem value="upi">UPI</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
