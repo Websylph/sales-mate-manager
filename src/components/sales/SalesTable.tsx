@@ -113,8 +113,8 @@ export const SalesTable = ({ sales, isLoading }: SalesTableProps) => {
                       onValueChange={(value: 'cash' | 'upi') => handlePaymentMethodChange(sale.id, value)}
                     >
                       <SelectTrigger className={cn(
-                        "w-[100px]",
-                        sale.payment_method === 'cash' ? "text-green-600" : "text-blue-600"
+                        "w-[100px] text-white",
+                        sale.payment_method === 'cash' ? "bg-green-500 hover:bg-green-600" : "bg-blue-500 hover:bg-blue-600"
                       )}>
                         <SelectValue />
                       </SelectTrigger>
