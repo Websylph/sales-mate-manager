@@ -43,7 +43,7 @@ export function AppSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar className="bg-white">
+    <Sidebar className="bg-white data-[mobile=true]:bg-white">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
