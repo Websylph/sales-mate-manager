@@ -43,17 +43,19 @@ export function AppSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar className="bg-white data-[mobile=true]:bg-white">
+    <Sidebar className="bg-black data-[mobile=true]:bg-black">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-white font-bold">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
-                    className={location.pathname === item.url ? "bg-primary/10 text-primary" : ""}
+                    className={location.pathname === item.url 
+                      ? "bg-white/10 text-white font-bold" 
+                      : "text-white/80 hover:text-white hover:bg-white/10 font-bold"}
                   >
                     <Link to={item.url} className="flex items-center gap-3">
                       <item.icon className="h-5 w-5" />
