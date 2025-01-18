@@ -109,7 +109,7 @@ export const SalesTable = ({ sales, isLoading }: SalesTableProps) => {
                 <TableRow 
                   key={sale.id}
                   className={cn(
-                    isToday(sale.date) && "bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20"
+                    isToday(sale.date) && "bg-gradient-to-r from-[#FEC6A1]/30 to-[#F97316]/20 hover:from-[#FEC6A1]/40 hover:to-[#F97316]/30"
                   )}
                 >
                   <TableCell>{new Date(sale.date).toLocaleDateString()}</TableCell>
