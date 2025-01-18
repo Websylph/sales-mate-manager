@@ -73,6 +73,12 @@ export const SalesTable = ({ sales, isLoading }: SalesTableProps) => {
     updatePaymentMethodMutation.mutate({ saleId, paymentMethod: newMethod });
   };
 
+  const isToday = (dateString: string) => {
+    const today = new Date();
+    const date = new Date(dateString);
+    return date.toDateString() === today.toDateString();
+  };
+
   return (
     <Card className="p-4 md:p-6">
       <h2 className="text-lg font-semibold mb-4">Sales History</h2>
@@ -100,7 +106,12 @@ export const SalesTable = ({ sales, isLoading }: SalesTableProps) => {
               </TableRow>
             ) : (
               sales?.map((sale) => (
-                <TableRow key={sale.id}>
+                <TableRow 
+                  key={sale.id}
+                  className={cn(
+                    isToday(sale.date) && "bg-primary/5 hover:bg-primary/10"
+                  )}
+                >
                   <TableCell>{new Date(sale.date).toLocaleDateString()}</TableCell>
                   <TableCell>{sale.product_name}</TableCell>
                   <TableCell>{sale.quantity}</TableCell>

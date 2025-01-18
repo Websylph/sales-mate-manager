@@ -12,31 +12,43 @@ export type Database = {
       expenses: {
         Row: {
           amount: number
+          amount_due: number | null
+          amount_paid: number | null
           category: string | null
           created_at: string | null
           date: string
           description: string
+          due_date: string | null
           id: string
+          payment_status: string | null
           updated_at: string | null
           user_id: string | null
         }
         Insert: {
           amount: number
+          amount_due?: number | null
+          amount_paid?: number | null
           category?: string | null
           created_at?: string | null
           date?: string
           description: string
+          due_date?: string | null
           id?: string
+          payment_status?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
         Update: {
           amount?: number
+          amount_due?: number | null
+          amount_paid?: number | null
           category?: string | null
           created_at?: string | null
           date?: string
           description?: string
+          due_date?: string | null
           id?: string
+          payment_status?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
