@@ -23,6 +23,7 @@ import {
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
+import { useEffect, useState } from "react";
 
 const formSchema = z.object({
   amount: z.string().min(1, "Amount is required"),
@@ -34,6 +35,16 @@ const formSchema = z.object({
 
 export function WithdrawalForm({ onSuccess }: { onSuccess: () => void }) {
   const queryClient = useQueryClient();
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUserId(session?.user?.id || null);
+    };
+    getCurrentUser();
+  }, []);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -44,11 +55,17 @@ export function WithdrawalForm({ onSuccess }: { onSuccess: () => void }) {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!userId) {
+      toast.error("You must be logged in to record a withdrawal");
+      return;
+    }
+
     try {
       const { error } = await supabase.from("withdrawals").insert({
         amount: parseFloat(values.amount),
         description: values.description,
         date: format(values.date, "yyyy-MM-dd"),
+        user_id: userId,
       });
 
       if (error) throw error;
