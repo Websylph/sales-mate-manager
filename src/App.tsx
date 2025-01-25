@@ -10,6 +10,7 @@ import Sales from "./pages/Sales";
 import Inventory from "./pages/Inventory";
 import Expenses from "./pages/Expenses";
 import Analytics from "./pages/Analytics";
+import MoneyOut from "./pages/MoneyOut";
 import Login from "./pages/Login";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -67,6 +68,7 @@ const App = () => (
                         <Route path="/inventory" element={<Inventory />} />
                         <Route path="/expenses" element={<Expenses />} />
                         <Route path="/analytics" element={<Analytics />} />
+                        <Route path="/money-out" element={<MoneyOut />} />
                       </Routes>
                     </main>
                   </div>
