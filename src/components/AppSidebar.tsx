@@ -1,4 +1,4 @@
-import { Box, LayoutDashboard, DollarSign, PackageSearch, Receipt, PieChart } from "lucide-react";
+import { Box, LayoutDashboard, DollarSign, PackageSearch, Receipt, PieChart, ArrowRight } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -36,6 +36,11 @@ const menuItems = [
     title: "Analytics",
     url: "/analytics",
     icon: PieChart,
+  },
+  {
+    title: "Money Out",
+    url: "/money-out",
+    icon: ArrowRight,
   },
 ];
 
