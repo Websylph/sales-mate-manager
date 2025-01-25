@@ -59,6 +59,15 @@ export default function Sales() {
     : 0;
   const margin = 20; // Example margin percentage
 
+  // Calculate payment method totals
+  const cashTotal = sales?.reduce((sum, sale) => 
+    sale.payment_method === 'cash' ? sum + (sale.total || 0) : sum, 0
+  ) || 0;
+  
+  const upiTotal = sales?.reduce((sum, sale) => 
+    sale.payment_method === 'upi' ? sum + (sale.total || 0) : sum, 0
+  ) || 0;
+
   return (
     <div className="p-4 md:p-6 space-y-6">
       <h1 className="text-xl md:text-2xl font-bold mb-6">Sales Management</h1>
@@ -67,6 +76,8 @@ export default function Sales() {
         totalSales={totalSales}
         averagePrice={averagePrice}
         margin={margin}
+        cashTotal={cashTotal}
+        upiTotal={upiTotal}
       />
 
       <NewSaleForm />
