@@ -13,11 +13,23 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 
 const formSchema = z.object({
   amount: z.string().min(1, "Amount is required"),
   description: z.string().optional(),
+  date: z.date({
+    required_error: "Please select a date",
+  }),
 });
 
 export function WithdrawalForm({ onSuccess }: { onSuccess: () => void }) {
@@ -27,6 +39,7 @@ export function WithdrawalForm({ onSuccess }: { onSuccess: () => void }) {
     defaultValues: {
       amount: "",
       description: "",
+      date: new Date(),
     },
   });
 
@@ -35,6 +48,7 @@ export function WithdrawalForm({ onSuccess }: { onSuccess: () => void }) {
       const { error } = await supabase.from("withdrawals").insert({
         amount: parseFloat(values.amount),
         description: values.description,
+        date: format(values.date, "yyyy-MM-dd"),
       });
 
       if (error) throw error;
@@ -52,6 +66,47 @@ export function WithdrawalForm({ onSuccess }: { onSuccess: () => void }) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="date"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Date</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full pl-3 text-left font-normal",
+                        !field.value && "text-muted-foreground"
+                      )}
+                    >
+                      {field.value ? (
+                        format(field.value, "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    disabled={(date) =>
+                      date > new Date() || date < new Date("1900-01-01")
+                    }
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="amount"
