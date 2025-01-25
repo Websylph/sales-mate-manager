@@ -63,7 +63,7 @@ export function WithdrawalForm({ onSuccess }: { onSuccess: () => void }) {
     try {
       const { error } = await supabase.from("withdrawals").insert({
         amount: parseFloat(values.amount),
-        description: values.description,
+        description: values.description || null,
         date: format(values.date, "yyyy-MM-dd"),
         user_id: userId,
       });
@@ -93,7 +93,7 @@ export function WithdrawalForm({ onSuccess }: { onSuccess: () => void }) {
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
-                      variant={"outline"}
+                      variant="outline"
                       className={cn(
                         "w-full pl-3 text-left font-normal",
                         !field.value && "text-muted-foreground"
@@ -131,7 +131,12 @@ export function WithdrawalForm({ onSuccess }: { onSuccess: () => void }) {
             <FormItem>
               <FormLabel>Amount (₹)</FormLabel>
               <FormControl>
-                <Input type="number" step="0.01" {...field} />
+                <Input 
+                  type="number" 
+                  step="0.01" 
+                  placeholder="Enter amount"
+                  {...field} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -144,7 +149,10 @@ export function WithdrawalForm({ onSuccess }: { onSuccess: () => void }) {
             <FormItem>
               <FormLabel>Description (Optional)</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input 
+                  placeholder="Enter description"
+                  {...field} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
