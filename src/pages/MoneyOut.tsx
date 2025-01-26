@@ -17,7 +17,7 @@ import { WithdrawalMetrics } from "@/components/withdrawals/WithdrawalMetrics";
 const MoneyOut = () => {
   const [open, setOpen] = useState(false);
 
-  const { data: withdrawals, isLoading } = useQuery({
+  const { data: withdrawals, isLoading: isLoadingWithdrawals } = useQuery({
     queryKey: ["withdrawals"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -30,7 +30,20 @@ const MoneyOut = () => {
     },
   });
 
+  const { data: sales, isLoading: isLoadingSales } = useQuery({
+    queryKey: ["sales"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sales")
+        .select("total");
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const totalWithdrawn = withdrawals?.reduce((sum, w) => sum + Number(w.amount), 0) || 0;
+  const totalRevenue = sales?.reduce((sum, sale) => sum + Number(sale.total || 0), 0) || 0;
 
   return (
     <div className="p-4 md:p-6 space-y-6">
@@ -52,8 +65,8 @@ const MoneyOut = () => {
         </Dialog>
       </div>
 
-      <WithdrawalMetrics totalWithdrawn={totalWithdrawn} />
-      <WithdrawalHistory withdrawals={withdrawals || []} isLoading={isLoading} />
+      <WithdrawalMetrics totalWithdrawn={totalWithdrawn} totalRevenue={totalRevenue} />
+      <WithdrawalHistory withdrawals={withdrawals || []} isLoading={isLoadingWithdrawals} />
     </div>
   );
 };
